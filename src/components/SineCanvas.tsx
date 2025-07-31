@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import type { WaveParams } from "../types/wave";
 import { generateSinePoints } from "../utils/math";
 
@@ -6,10 +6,29 @@ interface SineCanvasProps {
   width: number;
   height: number;
   waveParams: WaveParams;
+  mode?: "draw" | "analysis";
+  onCanvasReady?: (canvas: HTMLCanvasElement) => void;
 }
 
-export function SineCanvas({ width, height, waveParams }: SineCanvasProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+export interface SineCanvasRef {
+  getImageData: () => ImageData | null;
+  getCanvas: () => HTMLCanvasElement | null;
+}
+
+export const SineCanvas = forwardRef<SineCanvasRef, SineCanvasProps>(
+  ({ width, height, waveParams, mode = "draw", onCanvasReady }, ref) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    useImperativeHandle(ref, () => ({
+      getImageData: () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return null;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return null;
+        return ctx.getImageData(0, 0, width, height);
+      },
+      getCanvas: () => canvasRef.current,
+    }));
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -38,21 +57,27 @@ export function SineCanvas({ width, height, waveParams }: SineCanvasProps) {
 
     // Add period markers
     drawPeriodMarkers(ctx, width, height);
-  }, [width, height, waveParams]);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      width={width}
-      height={height}
-      style={{
-        border: "1px solid #e5e7eb",
-        borderRadius: "8px",
-        backgroundColor: "#ffffff",
-      }}
-    />
-  );
-}
+    // Notify parent when canvas is ready
+    if (onCanvasReady) {
+      onCanvasReady(canvas);
+    }
+  }, [width, height, waveParams, onCanvasReady]);
+
+    return (
+      <canvas
+        ref={canvasRef}
+        width={width}
+        height={height}
+        style={{
+          border: "1px solid #e5e7eb",
+          borderRadius: "8px",
+          backgroundColor: "#ffffff",
+        }}
+      />
+    );
+  }
+);
 
 function drawGrid(
   ctx: CanvasRenderingContext2D,

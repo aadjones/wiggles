@@ -2,6 +2,8 @@ import { useState } from "react";
 import { ModuleNavigation } from "./components/ModuleNavigation";
 import { Module0_SingleSine } from "./modules/Module0_SingleSine";
 import { Module1_TwoSines } from "./modules/Module1_TwoSines";
+import { Module2_MiniPrism } from "./modules/Module2_MiniPrism";
+import { isFeatureEnabled } from "./config/featureFlags";
 import type { Module, UserProgress } from "./types/module";
 import "./App.css";
 
@@ -20,13 +22,23 @@ function App() {
       description: "Two sine waves and phase interference",
       component: Module1_TwoSines,
     },
+    {
+      id: 2,
+      title: "Mini Prism",
+      description: "Split waves into frequency components",
+      component: Module2_MiniPrism,
+    },
   ];
+
+  // Get all module IDs for unlocking
+  const allModuleIds = modules.map(m => m.id);
+  const unlockAllModules = isFeatureEnabled("UNLOCK_ALL_MODULES");
 
   // User progress and current module state
   const [userProgress, setUserProgress] = useState<UserProgress>({
     completedModules: [],
     currentModule: 0,
-    unlockedModules: [0], // Start with module 0 unlocked
+    unlockedModules: unlockAllModules ? allModuleIds : [0], // Start with module 0 unlocked
   });
 
   const [currentModule, setCurrentModule] = useState(0);
@@ -36,7 +48,9 @@ function App() {
     setUserProgress((prev) => ({
       ...prev,
       completedModules: [...prev.completedModules, currentModule],
-      unlockedModules: prev.unlockedModules.includes(currentModule + 1)
+      unlockedModules: unlockAllModules
+        ? allModuleIds
+        : prev.unlockedModules.includes(currentModule + 1)
         ? prev.unlockedModules
         : [...prev.unlockedModules, currentModule + 1],
     }));
@@ -44,7 +58,7 @@ function App() {
 
   // Handle next module navigation
   const handleNextModule = () => {
-    const nextModuleId = currentModule === 1 ? 0 : currentModule + 1; // Loop back to 0 for now
+    const nextModuleId = currentModule === 2 ? 0 : currentModule + 1; // Loop back to 0 for now
     if (userProgress.unlockedModules.includes(nextModuleId)) {
       setCurrentModule(nextModuleId);
     }
@@ -52,7 +66,7 @@ function App() {
 
   // Handle direct module selection
   const handleModuleSelect = (moduleId: number) => {
-    if (userProgress.unlockedModules.includes(moduleId)) {
+    if (unlockAllModules || userProgress.unlockedModules.includes(moduleId)) {
       setCurrentModule(moduleId);
     }
   };
