@@ -60,85 +60,110 @@ export function AmplitudeSlider({ value, onChange }: AmplitudeSliderProps) {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: "12px",
+        gap: "8px",
+        padding: "12px",
+        background: "linear-gradient(145deg, #2a2a2a, #1a1a1a)",
+        borderRadius: "12px",
+        border: "1px solid #404040",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+        minWidth: "80px",
       }}
     >
-      <label style={{ fontWeight: "600", color: "#374151", fontSize: "14px" }}>
-        AMPLITUDE
-      </label>
+      {/* Value display at top */}
+      <div
+        style={{
+          fontSize: "14px",
+          fontWeight: "700",
+          color: "#00ff88",
+          backgroundColor: "#0a0a0a",
+          padding: "4px 8px",
+          borderRadius: "4px",
+          border: "1px solid #333",
+          minWidth: "48px",
+          textAlign: "center",
+          fontFamily: "monospace",
+          boxShadow: "inset 0 1px 3px rgba(0,0,0,0.5)",
+        }}
+      >
+        {value.toFixed(1)}
+      </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        {/* Value display */}
+      {/* Professional mixing board fader */}
+      <div
+        ref={faderRef}
+        style={{
+          position: "relative",
+          width: `${faderWidth}px`,
+          height: `${faderHeight}px`,
+          background: "linear-gradient(to right, #1a1a1a, #2a2a2a, #1a1a1a)",
+          border: "2px solid #333",
+          borderRadius: "6px",
+          cursor: isDragging ? "grabbing" : "grab",
+          boxShadow: "inset 0 2px 8px rgba(0,0,0,0.6)",
+        }}
+      >
+        {/* Fader track groove */}
         <div
           style={{
-            fontSize: "18px",
-            fontWeight: "700",
-            color: "#1d4ed8",
-            minWidth: "50px",
-            textAlign: "center",
+            position: "absolute",
+            left: "50%",
+            top: "8px",
+            bottom: "8px",
+            width: "4px",
+            transform: "translateX(-50%)",
+            background: "linear-gradient(to bottom, #0a0a0a, #1a1a1a)",
+            borderRadius: "2px",
+            border: "1px solid #555",
+            boxShadow: "inset 0 1px 3px rgba(0,0,0,0.8)",
           }}
-        >
-          {value.toFixed(1)}
-        </div>
+        />
 
-        {/* Vertical fader */}
+
+        {/* Professional fader cap */}
         <div
-          ref={faderRef}
+          onMouseDown={handleMouseDown}
           style={{
-            position: "relative",
-            width: `${faderWidth}px`,
-            height: `${faderHeight}px`,
-            background: "linear-gradient(to bottom, #f3f4f6, #e5e7eb)",
-            border: "2px solid #d1d5db",
-            borderRadius: "8px",
+            position: "absolute",
+            top: `${handlePosition}px`,
+            left: "2px",
+            right: "2px",
+            height: `${handleHeight + 4}px`,
+            background: "linear-gradient(145deg, #4a4a4a, #2a2a2a)",
+            border: "1px solid #555",
+            borderRadius: "3px",
             cursor: isDragging ? "grabbing" : "grab",
-            boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.5)",
+            transition: isDragging ? "none" : "top 0.1s ease",
           }}
         >
-          {/* Track marks */}
+          {/* Fader handle grip lines */}
           <div
             style={{
               position: "absolute",
-              right: "-20px",
-              top: "0",
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              fontSize: "10px",
-              color: "#6b7280",
-            }}
-          >
-            <span>2.0</span>
-            <span>1.5</span>
-            <span>1.0</span>
-            <span>0.5</span>
-            <span>0.0</span>
-          </div>
-
-          {/* Fader handle */}
-          <div
-            onMouseDown={handleMouseDown}
-            style={{
-              position: "absolute",
-              top: `${handlePosition}px`,
-              left: "4px",
-              right: "4px",
-              height: `${handleHeight}px`,
-              background: "linear-gradient(to bottom, #3b82f6, #1d4ed8)",
-              border: "1px solid #1e40af",
-              borderRadius: "4px",
-              cursor: isDragging ? "grabbing" : "grab",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-              transition: isDragging ? "none" : "top 0.1s ease",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "32px",
+              height: "2px",
+              background: "#666",
+              borderRadius: "1px",
+              boxShadow: "0 1px 0 #333, 0 3px 0 #666, 0 4px 0 #333, 0 6px 0 #666, 0 7px 0 #333",
             }}
           />
         </div>
       </div>
 
-      <div style={{ fontSize: "11px", color: "#6b7280", textAlign: "center" }}>
-        Drag to adjust
-      </div>
+      {/* Label at bottom */}
+      <label style={{ 
+        fontWeight: "600", 
+        color: "#ccc", 
+        fontSize: "10px",
+        textTransform: "uppercase",
+        letterSpacing: "0.5px",
+        fontFamily: "sans-serif",
+      }}>
+        AMP
+      </label>
     </div>
   );
 }

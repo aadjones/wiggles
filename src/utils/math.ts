@@ -22,7 +22,11 @@ export function generateSinePoints(
 ): { x: number; y: number }[] {
   const points: { x: number; y: number }[] = [];
   const centerY = height / 2;
-  const scale = 120; // Much larger scaling for maximum visibility
+  
+  // Dynamic scaling: use 80% of half-height to accommodate max amplitude of 2.0
+  // This ensures amplitude 2.0 uses 80% of available space, leaving 20% margin
+  const maxAmplitude = 2.0;
+  const scale = (centerY * 0.8) / maxAmplitude;
 
   for (let pixelX = 0; pixelX <= width; pixelX += resolution) {
     // Map pixel coordinates to mathematical coordinates

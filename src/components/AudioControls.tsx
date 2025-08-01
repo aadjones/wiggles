@@ -63,7 +63,7 @@ export function AudioControls({ waveParams }: AudioControlsProps) {
           e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
         }}
       >
-        {isPlaying ? "⏹ STOP" : "▶ PLAY"}
+{isPlaying ? "⏹" : "▶"}
       </button>
 
       <div style={{ fontSize: "11px", color: "#6b7280", textAlign: "center" }}>

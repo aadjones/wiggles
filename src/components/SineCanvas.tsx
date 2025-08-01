@@ -37,8 +37,26 @@ export const SineCanvas = forwardRef<SineCanvasRef, SineCanvasProps>(
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // Get device pixel ratio for high-DPI displays
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    
+    // Set actual canvas size in memory (scaled up for high-DPI)
+    canvas.width = width * devicePixelRatio;
+    canvas.height = height * devicePixelRatio;
+    
+    // Scale the canvas down using CSS (maintains sharp rendering)
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    
+    // Scale the drawing context so everything draws at the correct size
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+
     // Clear canvas
     ctx.clearRect(0, 0, width, height);
+
+    // Enable antialiasing for smoother lines
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     // Draw grid lines
     drawGrid(ctx, width, height);
@@ -150,6 +168,15 @@ function drawPeriodMarkers(
     ctx.moveTo(marker.x, height / 2 - 8);
     ctx.lineTo(marker.x, height / 2 + 8);
     ctx.stroke();
+
+    // Adjust text alignment for edge labels to prevent cutoff
+    if (marker.x === 0) {
+      ctx.textAlign = "start";
+    } else if (marker.x === width) {
+      ctx.textAlign = "end";
+    } else {
+      ctx.textAlign = "center";
+    }
 
     // Draw label
     ctx.fillText(marker.label, marker.x, height - 10);

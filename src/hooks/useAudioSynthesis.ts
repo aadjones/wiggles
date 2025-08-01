@@ -110,6 +110,6 @@ export function useAudioSynthesis(waveParams: WaveParams) {
     isPlaying,
     startAudio,
     stopAudio,
-    isSupported: !!audioContextRef.current,
+    isSupported: true, // Assume supported - will gracefully fail if not
   };
 }

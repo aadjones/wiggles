@@ -1,10 +1,17 @@
 import { useState } from "react";
 import { SineCanvas } from "../components/SineCanvas";
+import { PhasorCanvas } from "../components/PhasorCanvas";
+import { LEDStripCanvas } from "../components/LEDStripCanvas";
 import { AmplitudeSlider } from "../components/AmplitudeSlider";
 import { PhaseKnob } from "../components/PhaseKnob";
 import { AudioControls } from "../components/AudioControls";
 import type { WaveParams } from "../types/wave";
 import type { ModuleProps } from "../types/module";
+
+// Feature flag to show/hide wave equation
+const SHOW_WAVE_EQUATION = false;
+
+type VisualizationMode = 'wave' | 'phasor' | 'leds';
 
 export function Module0_SingleSine({ onComplete, onNext }: ModuleProps) {
   const [waveParams, setWaveParams] = useState<WaveParams>({
@@ -12,6 +19,8 @@ export function Module0_SingleSine({ onComplete, onNext }: ModuleProps) {
     frequency: 3, // Fixed at k=3 for now
     phase: 0,
   });
+
+  const [visualizationMode, setVisualizationMode] = useState<VisualizationMode>('wave');
 
   const updateAmplitude = (amplitude: number) => {
     setWaveParams((prev) => ({ ...prev, amplitude }));
@@ -44,13 +53,12 @@ export function Module0_SingleSine({ onComplete, onNext }: ModuleProps) {
   return (
     <div
       style={{
-        padding: "20px",
+        padding: "12px",
         fontFamily: "system-ui, sans-serif",
         backgroundColor: "#f9fafb",
-        minHeight: "100vh",
       }}
     >
-      <header style={{ textAlign: "center", marginBottom: "30px" }}>
+      <header style={{ textAlign: "center", marginBottom: "20px" }}>
         <div
           style={{
             fontSize: "14px",
@@ -93,29 +101,71 @@ export function Module0_SingleSine({ onComplete, onNext }: ModuleProps) {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: "30px",
+          gap: "16px",
         }}
       >
+        {/* Visualization Mode Toggle */}
+        <div
+          style={{
+            display: "flex",
+            gap: "8px",
+            backgroundColor: "white",
+            padding: "8px",
+            borderRadius: "8px",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          {(['wave', 'phasor', 'leds'] as const).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setVisualizationMode(mode)}
+              style={{
+                padding: "6px 12px",
+                fontSize: "12px",
+                fontWeight: "600",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                backgroundColor: visualizationMode === mode ? "#3b82f6" : "#f3f4f6",
+                color: visualizationMode === mode ? "white" : "#6b7280",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+                transition: "all 0.2s ease",
+              }}
+            >
+              {mode === 'wave' ? 'Wave' : mode === 'phasor' ? 'Phasor' : 'LEDs'}
+            </button>
+          ))}
+        </div>
+
         {/* Wave Visualization */}
         <div
           style={{
             backgroundColor: "white",
-            padding: "20px",
+            padding: "16px",
             borderRadius: "12px",
             boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <SineCanvas width={800} height={300} waveParams={waveParams} />
+          {visualizationMode === 'wave' && (
+            <SineCanvas width={680} height={220} waveParams={waveParams} />
+          )}
+          {visualizationMode === 'phasor' && (
+            <PhasorCanvas width={680} height={220} waveParams={waveParams} />
+          )}
+          {visualizationMode === 'leds' && (
+            <LEDStripCanvas width={680} height={220} waveParams={waveParams} />
+          )}
         </div>
 
         {/* Controls */}
         <div
           style={{
             display: "flex",
-            gap: "40px",
+            gap: "32px",
             alignItems: "center",
             backgroundColor: "white",
-            padding: "30px",
+            padding: "20px",
             borderRadius: "12px",
             boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           }}
@@ -128,7 +178,7 @@ export function Module0_SingleSine({ onComplete, onNext }: ModuleProps) {
           <div
             style={{
               width: "1px",
-              height: "80px",
+              height: "60px",
               backgroundColor: "#e5e7eb",
             }}
           />
@@ -138,7 +188,7 @@ export function Module0_SingleSine({ onComplete, onNext }: ModuleProps) {
           <div
             style={{
               width: "1px",
-              height: "80px",
+              height: "60px",
               backgroundColor: "#e5e7eb",
             }}
           />
@@ -147,37 +197,39 @@ export function Module0_SingleSine({ onComplete, onNext }: ModuleProps) {
         </div>
 
         {/* Info Panel */}
-        <div
-          style={{
-            backgroundColor: "white",
-            padding: "20px",
-            borderRadius: "12px",
-            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-            maxWidth: "600px",
-            textAlign: "center",
-          }}
-        >
-          <h3 style={{ color: "#374151", marginTop: 0 }}>
-            Current Wave Equation
-          </h3>
-          <code
+        {SHOW_WAVE_EQUATION && (
+          <div
             style={{
-              fontSize: "1.2rem",
-              color: "#3b82f6",
-              backgroundColor: "#f3f4f6",
-              padding: "10px 15px",
-              borderRadius: "6px",
-              display: "inline-block",
+              backgroundColor: "white",
+              padding: "20px",
+              borderRadius: "12px",
+              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+              maxWidth: "600px",
+              textAlign: "center",
             }}
           >
-            y = {waveParams.amplitude.toFixed(2)} × sin(x +{" "}
-            {Math.round(waveParams.phase)}°)
-          </code>
-          <p style={{ color: "#6b7280", marginBottom: 0, marginTop: "15px" }}>
-            <strong>Amplitude</strong> controls the height •{" "}
-            <strong>Phase</strong> shifts the wave horizontally
-          </p>
-        </div>
+            <h3 style={{ color: "#374151", marginTop: 0 }}>
+              Current Wave Equation
+            </h3>
+            <code
+              style={{
+                fontSize: "1.2rem",
+                color: "#3b82f6",
+                backgroundColor: "#f3f4f6",
+                padding: "10px 15px",
+                borderRadius: "6px",
+                display: "inline-block",
+              }}
+            >
+              y = {waveParams.amplitude.toFixed(2)} × sin(x +{" "}
+              {Math.round(waveParams.phase)}°)
+            </code>
+            <p style={{ color: "#6b7280", marginBottom: 0, marginTop: "15px" }}>
+              <strong>Amplitude</strong> controls the height •{" "}
+              <strong>Phase</strong> shifts the wave horizontally
+            </p>
+          </div>
+        )}
 
         {/* Progress and Next Button */}
         {isComplete && (
